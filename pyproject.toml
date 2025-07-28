@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reddit-wisdom"
+version = "0.1.0"
+description = "Use reddit's infinite (and eternal) wisdom to invest"
+authors = [{name = "Nicolas Feller", email = "me@nicolasfeller.com"}]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "mypy",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
