@@ -87,9 +87,10 @@ class DataProcessor:
             "NVDA": {"base": 80, "volatility": 40},
             "MSFT": {"base": 70, "volatility": 25},
             "GOOGL": {"base": 60, "volatility": 20},
+            "GOOG": {"base": 58, "volatility": 18},
+            "PLTR": {"base": 55, "volatility": 25},
             "META": {"base": 50, "volatility": 35},
             "AMD": {"base": 45, "volatility": 30},
-            "PLTR": {"base": 40, "volatility": 25},
         }
 
         for i in range(30):
