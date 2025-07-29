@@ -165,23 +165,29 @@ function App() {
                   <TrendingUp className="h-5 w-5" />
                   Trending Stocks
                 </CardTitle>
-                <CardDescription>Most mentioned stocks in the last month</CardDescription>
+                <CardDescription>Currently charted stocks (click to remove)</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {trendingTickers.map((ticker, index) => (
-                    <div key={ticker.ticker} className="flex justify-between items-center p-2 rounded hover:bg-gray-100 cursor-pointer"
-                         onClick={() => {
-                           if (!selectedTickers.includes(ticker.ticker)) {
-                             const newTickers = [...selectedTickers, ticker.ticker];
-                             setSelectedTickers(newTickers);
-                             updateChartData(newTickers);
-                           }
-                         }}>
-                      <span className="font-medium">#{index + 1} ${ticker.ticker}</span>
-                      <span className="text-sm text-gray-600">{ticker.total_mentions} mentions</span>
+                  {selectedTickers.map((ticker, index) => {
+                    const trendingData = trendingTickers.find(t => t.ticker === ticker);
+                    const mentions = trendingData ? trendingData.total_mentions : 'N/A';
+                    return (
+                      <div key={ticker} className="flex justify-between items-center p-2 rounded hover:bg-red-50 cursor-pointer group"
+                           onClick={() => removeTicker(ticker)}>
+                        <span className="font-medium">#{index + 1} ${ticker}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-600">{mentions} mentions</span>
+                          <span className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">×</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {selectedTickers.length === 0 && (
+                    <div className="text-center text-gray-500 py-4">
+                      No stocks selected. Add a custom ticker below to get started.
                     </div>
-                  ))}
+                  )}
                 </div>
                 
                 <div className="mt-6 space-y-2">
@@ -199,24 +205,6 @@ function App() {
                   </div>
                 </div>
 
-                {selectedTickers.length > 0 && (
-                  <div className="mt-4">
-                    <label className="text-sm font-medium mb-2 block">Selected Tickers</label>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedTickers.map((ticker) => (
-                        <span
-                          key={ticker}
-                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200"
-                          onClick={() => removeTicker(ticker)}
-                        >
-                          ${ticker}
-                          <span className="ml-1 text-blue-600">×</span>
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">Click to remove from chart</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
