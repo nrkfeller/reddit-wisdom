@@ -24,7 +24,26 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  
+  const getApiConfig = (): { baseUrl: string; headers: HeadersInit } => {
+    try {
+      const url = new URL(API_URL);
+      if (url.username && url.password) {
+        const credentials = btoa(`${url.username}:${url.password}`);
+        const cleanUrl = `${url.protocol}//${url.host}`;
+        return {
+          baseUrl: cleanUrl,
+          headers: { 'Authorization': `Basic ${credentials}` }
+        };
+      }
+      return { baseUrl: API_URL, headers: {} };
+    } catch {
+      return { baseUrl: API_URL, headers: {} };
+    }
+  };
+  
+  const { baseUrl: API_BASE, headers: authHeaders } = getApiConfig();
 
   useEffect(() => {
     fetchTrendingTickers();
@@ -34,7 +53,9 @@ function App() {
     try {
       setLoading(true);
       setError('');
-      const response = await fetch(`${API_BASE}/api/trending`);
+      const response = await fetch(`${API_BASE}/api/trending`, {
+        headers: authHeaders
+      });
       const data = await response.json();
       setTrendingTickers(data.trending_tickers);
       
@@ -52,7 +73,9 @@ function App() {
   const updateChartData = async (tickers: string[]) => {
     try {
       const historyPromises = tickers.map(ticker =>
-        fetch(`${API_BASE}/api/ticker/${ticker}/history`).then(r => r.json())
+        fetch(`${API_BASE}/api/ticker/${ticker}/history`, {
+          headers: authHeaders
+        }).then(r => r.json())
       );
       
       const histories = await Promise.all(historyPromises);
@@ -83,7 +106,10 @@ function App() {
       setError('');
       const response = await fetch(`${API_BASE}/api/ticker/validate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...authHeaders
+        },
         body: JSON.stringify({ ticker: customTicker.toUpperCase() })
       });
       
@@ -115,7 +141,9 @@ function App() {
     try {
       setLoading(true);
       setError('');
-      await fetch(`${API_BASE}/api/data/refresh`);
+      await fetch(`${API_BASE}/api/data/refresh`, {
+        headers: authHeaders
+      });
       await fetchTrendingTickers();
     } catch (err) {
       setError('Failed to refresh data');
