@@ -73,45 +73,66 @@ class DataProcessor:
         return sorted(list(self.mention_data.keys()))
 
     def _initialize_mock_data(self):
-        """Initialize with mock data for development when no Reddit data is available"""
-        from datetime import datetime, timedelta
+        """Initialize mock data for testing purposes"""
         import random
-
-        end_date = datetime.now().date()
-
-        tickers = {
-            "TSLA": {"base": 150, "volatility": 50},
-            "GME": {"base": 120, "volatility": 80},
-            "AAPL": {"base": 100, "volatility": 30},
-            "AMC": {"base": 90, "volatility": 60},
-            "NVDA": {"base": 80, "volatility": 40},
-            "MSFT": {"base": 70, "volatility": 25},
-            "GOOGL": {"base": 60, "volatility": 20},
-            "GOOG": {"base": 58, "volatility": 18},
-            "PLTR": {"base": 55, "volatility": 25},
-            "META": {"base": 50, "volatility": 35},
-            "AMD": {"base": 45, "volatility": 30},
+        from datetime import datetime, timedelta
+        
+        base_mentions = {
+            'AAPL': 2500, 'MSFT': 2200, 'GOOGL': 2000, 'GOOG': 2000, 'AMZN': 1900,
+            'NVDA': 2800, 'TSLA': 3000, 'META': 1800, 'BRK.B': 1200, 'BRK.A': 800,
+            
+            'V': 1000, 'JPM': 1100, 'JNJ': 900, 'WMT': 800, 'PG': 700,
+            'UNH': 900, 'HD': 800, 'MA': 950, 'BAC': 1200, 'XOM': 1100,
+            
+            'GME': 2500, 'AMC': 2000, 'PLTR': 1500, 'BB': 1200, 'NOK': 1000,
+            'COIN': 1800, 'HOOD': 1400, 'RBLX': 1300, 'SNOW': 1100,
         }
-
-        for i in range(30):
-            current_date = (end_date - timedelta(days=i)).isoformat()
-
-            for ticker, config in tickers.items():
-                base_mentions = config["base"]
-                volatility = config["volatility"]
-
-                day_of_week = (end_date - timedelta(days=i)).weekday()
-                weekend_factor = 0.6 if day_of_week >= 5 else 1.0
-
-                spike_factor = (
-                    random.uniform(0.5, 2.0) if random.random() < 0.1 else 1.0
-                )
-
-                mentions = int(
-                    base_mentions * weekend_factor * spike_factor
-                    + random.randint(-volatility // 2, volatility // 2)
-                )
-                mentions = max(0, mentions)  # Ensure non-negative
-
-                if mentions > 0:
-                    self.mention_data[current_date][ticker] = mentions
+        
+        top_200_tickers = [
+            "AAPL", "MSFT", "GOOGL", "GOOG", "AMZN", "NVDA", "TSLA", "META", "BRK.B", "BRK.A",
+            "V", "JPM", "JNJ", "WMT", "PG", "UNH", "HD", "MA", "BAC", "XOM",
+            "ORCL", "CVX", "LLY", "ABBV", "KO", "AVGO", "PEP", "COST", "TMO", "MRK",
+            "ACN", "CSCO", "ABT", "DHR", "TXN", "VZ", "ADBE", "NKE", "CRM", "WFC",
+            "NFLX", "DIS", "INTC", "AMD", "CMCSA", "PFE", "PM", "RTX", "NEE", "UPS",
+            "T", "LOW", "QCOM", "HON", "UNP", "MS", "CAT", "GS", "IBM", "AMGN",
+            "BLK", "AXP", "DE", "SPGI", "BKNG", "MDT", "ADP", "GILD", "LRCX", "TJX",
+            "VRTX", "SYK", "SCHW", "C", "ZTS", "MMC", "CB", "MO", "USB", "PYPL",
+            "SO", "PNC", "AON", "DUK", "CSX", "TMUS", "FCX", "BMY", "NOW", "AMAT",
+            "SHW", "MU", "ICE", "GE", "CME", "TGT", "REGN", "APD", "EOG", "NSC",
+            "KLAC", "SLB", "MDLZ", "ADI", "ISRG", "CI", "CMG", "FISV", "TFC", "MCD",
+            "CVS", "EMR", "BSX", "ITW", "WM", "GD", "MCO", "FDX", "NOC", "EQIX",
+            "APH", "ECL", "PSA", "CL", "WELL", "PLD", "EL", "MCHP", "HUM", "CTAS",
+            "FAST", "PAYX", "ROST", "ODFL", "VRSK", "EXC", "KMB", "CTSH", "GWW", "IDXX",
+            "YUM", "BIIB", "KHC", "DXCM", "EA", "SBUX", "MNST", "EW", "ILMN", "WBA",
+            "CSGP", "ANSS", "ZBH", "CPRT", "MKTX", "WLTW", "CDNS", "SNPS", "MAR", "ROP",
+            "FTNT", "ADSK", "A", "MSCI", "EXR", "PCAR", "CMI", "NXPI", "ORLY", "AZO",
+            "DLTR", "EBAY", "CHTR", "XLNX", "ALGN", "MXIM", "SWKS", "INCY", "SIRI", "WDC",
+            "NTAP", "VIAC", "DISH", "FOXA", "FOX", "GME", "AMC", "PLTR", "BB", "NOK",
+            "COIN", "HOOD", "RBLX", "SNOW", "MSTR", "RIOT", "MARA", "TSM", "ASML", "NVO",
+            "SHOP", "SQ", "ROKU", "PINS", "SNAP", "TWTR", "UBER", "LYFT", "ABNB", "DASH",
+            "ZM", "PTON", "DOCU", "CRWD", "OKTA", "DDOG", "NET", "TWLO", "SPLK", "WDAY",
+            "VEEV", "ZS", "PANW", "TEAM", "MDB", "ESTC", "FSLY", "FVRR", "UPWK", "ETSY",
+            "SPOT", "BABA", "JD", "PDD", "NIO", "XPEV", "LI"
+        ]
+        
+        for ticker in top_200_tickers:
+            if ticker in base_mentions:
+                base_count = base_mentions[ticker]
+            else:
+                position = top_200_tickers.index(ticker) if ticker in top_200_tickers else 100
+                base_count = max(200, 1200 - (position * 4))
+            
+            for i in range(30):
+                date = (datetime.now() - timedelta(days=29-i)).strftime('%Y-%m-%d')
+                
+                volatility = random.uniform(0.7, 1.3)
+                daily_mentions = int(base_count * volatility)
+                
+                weekday = (datetime.now() - timedelta(days=29-i)).weekday()
+                if weekday >= 5:  # Saturday, Sunday
+                    daily_mentions = int(daily_mentions * 0.6)
+                
+                if date not in self.mention_data:
+                    self.mention_data[date] = {}
+                
+                self.mention_data[date][ticker] = daily_mentions
