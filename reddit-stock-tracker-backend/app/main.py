@@ -36,7 +36,7 @@ async def healthz():
 
 
 @app.get("/api/trending")
-async def get_trending_tickers(limit: int = 10):
+async def get_trending_tickers(limit: int = 50):
     """Get top trending stock tickers"""
     trending = data_processor.get_trending_tickers(limit)
     return {"trending_tickers": trending}

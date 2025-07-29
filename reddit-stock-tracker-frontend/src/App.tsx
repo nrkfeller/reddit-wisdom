@@ -115,8 +115,22 @@ function App() {
       
       const data = await response.json();
       if (data.valid) {
-        const newTickers = [...selectedTickers, data.ticker];
+        const ticker = data.ticker;
+        const newTickers = [...selectedTickers, ticker];
         setSelectedTickers(newTickers);
+        
+        const historyResponse = await fetch(`${API_BASE}/api/ticker/${ticker}/history`, {
+          headers: authHeaders
+        });
+        const historyData = await historyResponse.json();
+        
+        const totalMentions = historyData.history.reduce((sum: number, point: TickerHistory) => sum + point.mentions, 0);
+        
+        const existingTicker = trendingTickers.find(t => t.ticker === ticker);
+        if (!existingTicker) {
+          setTrendingTickers(prev => [...prev, { ticker, total_mentions: totalMentions }]);
+        }
+        
         await updateChartData(newTickers);
         setCustomTicker('');
         setError('');
